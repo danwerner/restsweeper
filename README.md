@@ -1,12 +1,14 @@
 # RESTsweeper
 
-RESTful implementation of the Minesweeper game.
+RESTful implementation of the Minesweeper game. Written in Clojure and using
+the excellent Compojure web framework.
 
 ## Installation
 
 The only pre-dependency is Leiningen, which will download everything else automatically.
 
-* Download http://github.com/technomancy/leiningen/raw/stable/bin/lein into a directory that is on your PATH
+* Download the [lein shell script](http://github.com/technomancy/leiningen/raw/stable/bin/lein)
+  and drop it into any directory on your PATH
 * lein self-install
 * cd /path/to/restsweeper
 * lein deps
@@ -15,7 +17,7 @@ The only pre-dependency is Leiningen, which will download everything else automa
 
 Run with something like:
 
-java -cp src:lib/clojure-1.1.0.jar:lib/clojure-contrib-1.1.0.jar:lib/commons-codec-1.3.jar:lib/commons-fileupload-1.2.1.jar:lib/commons-io-1.4.jar:lib/compojure-0.3.2.jar:lib/jetty-6.1.21.jar:lib/jetty-util-6.1.21.jar:lib/servlet-api-2.5-20081211.jar clojure.main src/restsweeper/run.clj
+    > java -cp src:lib/clojure-1.1.0.jar:lib/clojure-contrib-1.1.0.jar:lib/commons-codec-1.3.jar:lib/commons-fileupload-1.2.1.jar:lib/commons-io-1.4.jar:lib/compojure-0.3.2.jar:lib/jetty-6.1.21.jar:lib/jetty-util-6.1.21.jar:lib/servlet-api-2.5-20081211.jar clojure.main src/restsweeper/run.clj
 
 It's also possible to start a REPL with 'lein repl', then either
 (require 'restsweeper.run) or play with the Clojure code instead :-)
@@ -29,6 +31,7 @@ Sure, please do! I wrote this software for the learning experience, so if you
 learn something by reading, using or even improving this code, I'd feel honored.
 
 Some things that still need attention:
+
 * Flagging is 99% implemented in the backend, but there is currently no
   user-visible way to actually put flags on cells, the reason being that
   left-clicking on links is currently the only mechanism to advance to the
