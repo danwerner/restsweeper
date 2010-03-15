@@ -5,7 +5,8 @@ the excellent Compojure web framework.
 
 ## Installation
 
-The only pre-dependency is Leiningen, which will download everything else automatically.
+The only pre-dependencies are the Sun JDK/OpenJDK, Maven and Leiningen. The latter
+will automatically download all other dependencies.
 
 * Download the [lein shell script](http://github.com/technomancy/leiningen/raw/stable/bin/lein)
   and drop it into any directory on your PATH
