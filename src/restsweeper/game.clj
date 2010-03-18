@@ -1,30 +1,50 @@
 (ns restsweeper.game
-  (:use [restsweeper.utils :only [nand]])
-  (:use [clojure.contrib.seq-utils :only [rand-elt indexed flatten]]
+  (:use [restsweeper.utils :only [nand]]
+        [clojure.contrib.core :only [dissoc-in]]
+        [clojure.contrib.seq-utils :only [rand-elt indexed flatten]]
         [clojure.contrib.def :only [defn-memo]]))
+
+;; Predicates
 
 (defn mine? [cell]
   (or (:mine cell) false))
 
+(defn numbered? [cell]
+  (or (:number cell) false))
+
 (defn flag? [cell]
   (or (:flag cell) false))
-
-(defn valid-flag? [cell]
-  (or (and (mine? cell) (flag? cell))
-      false))
 
 (defn uncovered? [cell]
   (or (:uncovered cell) false))
 
-(defn game-over? [board]
+(defn cascade-uncover? [cell]
+  "After uncovering this cell, should adjecent cells be uncovered?"
+  (not (or (mine? cell) (numbered? cell))))
+
+(defn can-interact? [cell]
+  "Is the player able to interact with this cell in the current turn,
+  e.g. uncover it or flag it?"
+  (not (uncovered? cell)))
+
+(defn game-lost? [board]
   "Has the player hit a mine?"
   (some #(and (:mine %) (:uncovered %)) (flatten board)))
 
 (defn game-won? [board]
-  "Has the player uncovered everything without hitting a mine?"
-  (every?  #(or (and (:uncovered %) (not (:mine %))
-                (and (:flag %) (:mine %))))
-           (flatten board)))
+  "Has the player survived to reach a state where it is obvious which cells
+   do contain mines?"
+  (let [fboard (flatten board)]
+    (every? #(or (and (uncovered? %) (not (mine? %)))
+                 (and (mine? %) (not (uncovered? %))))
+            fboard)))
+
+(defn max-mines [h w]
+  "Returns the maximum number of mines allowed on a board of size h×w."
+  (* (dec h) (dec w)))
+
+
+;; Cell relations
 
 (defn adjecent-coords [y x h w]
   "Returns a seq of coordinate pairs [ya xa] that specify which cells are
@@ -40,36 +60,40 @@
 
 (defn adjecent-cells [y x h w board]
   (for [[ya xa] (adjecent-coords y x h w)]
-    ((board ya) xa)))
+    (get-in board [ya xa])))
 
 ;; Interaction
 
-(defn uncover [y x h w board]
-  "Returns the board with cell at [x y] uncovered."
-  (let [cell (get-in board [y x])]
-    (if (or (:uncovered cell) (:flag cell))
-      board
-      (let [board (assoc-in board [y x :uncovered] true)]
-        (if (or (:mine cell) (:number cell))
-          board
-          (reduce
-            (fn [brd [ya xa]]
-              (let [cl (get-in brd [ya xa])]
-                (if (or (:uncovered cl) (:mine cl)
-                        (:flag cl) (:number cl))
-                  brd
-                  (uncover ya xa h w brd))))
+(defn uncover
+  "Returns the board with cell at [x y] uncovered. If the cell is an empty one,
+   will also cascade the uncover adjecent empty and numbered cells.
+   If uncover-mine? is true, will also uncover cells containing mines."
+  ([y x h w uncover-mine? board]
+    (let [cell (get-in board [y x])]
+      (if (or (uncovered? cell)
+              (flag? cell)
+              (and (mine? cell) (not uncover-mine?)))
+        board
+        (let [board (assoc-in board [y x :uncovered] true)]
+          (if (not (cascade-uncover? cell))
             board
-            (adjecent-coords y x h w)))))))
+            (reduce
+              (fn [brd [ya xa]]
+                (uncover ya xa h w false brd))
+              board
+              (adjecent-coords y x h w)))))))
+  ([y x h w board]
+    (uncover y x h w true board)))
 
-(defn flag [y x h w board]
-  "Returns the board with cell at [x y] flagged."
+(defn flag
+  "Returns the board with the cell at [x y] flagged."
+  [y x h w board]
   (let [cell (get-in board [y x])]
     (cond
-      (:flag cell)
-        (assoc-in board [y x :flag] false)
-      (:uncovered cell)
+      (uncovered? cell)
         board
+      (flag? cell)
+        (dissoc-in board [y x :flag])
       :else
         (assoc-in board [x y :flag] true))))
 
@@ -82,23 +106,23 @@
   (for [[y row] (indexed board)]
     (for [[x cell] (indexed row)]
       (let [number (->> (adjecent-cells y x h w board)
-                     (filter :mine)
-                     (count))]
+                        (filter mine?)
+                        (count))]
         (if (> number 0)
           (assoc cell :number number)
           cell)))))
 
 (defn empty-cells
   "Returns a seq of coordinates [y x] that describe which cells on the
-   given board don't contain anything."
+   given board don't contain mines."
   [board]
   (->> 
     (mapcat (fn [y row]
               (map (fn [x cell]
-                        (if-not (mine? cell)
-                          [y x]))
-                (iterate inc 0)
-                row))
+                     (if-not (mine? cell)
+                       [y x]))
+                   (iterate inc 0)
+                   row))
             (iterate inc 0)
             board)
     (filter (complement nil?))))
@@ -109,7 +133,7 @@
 (defn place-mines
   "Places m mines in randomly chosen locations on a board of size h×w."
   [h w m board]
-  {:pre [(< m (* h w))]}
+  {:pre [(< m (max-mines h w))]}
   (if (> m 0)
     (let [[y x] (rand-elt (empty-cells board))]
       (recur h w (dec m) (assoc-in board [y x :mine] true)))
@@ -123,5 +147,6 @@
 (defn make-board
   "Generates a board whose width is w, height is h and number of mines is m."
   [h w m]
-  (->> (make-empty-board h w)
+  (->>
+    (make-empty-board h w)
     (place-mines h w m)))

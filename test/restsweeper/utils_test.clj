@@ -10,3 +10,10 @@
   (are [a b c result] (= (nand a b c) result)
     true true false  false
     true true true   false))
+
+(deftest xor-test
+  (are [a b result] (= (xor a b) result)
+    false false  false
+    true  false  true
+    false true   false
+    true  true   false))

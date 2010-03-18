@@ -26,18 +26,19 @@
    6 {:mine true, :flag true}
    7 {:uncovered true, :mine true, :flag true}})
 
-(defn hash-board [board]
-  "Returns a reversibly hashed representation of the game board."
-  (->> (flatten board)
-    (map cell->num)
-    (apply str)
-    (BigInteger.)
-    (#(.toString % 16))))
+(let [base 36]
+  (defn hash-board [board]
+    "Returns a reversibly hashed representation of the game board."
+    (->> (flatten board)
+      (map cell->num)
+      (apply str)
+      (BigInteger.)
+      (#(.toString % base))))
 
-(defn unhash-board [h w hash]
-  "Turns a hashed board back into a vector-of-vectors."
-    (->> (BigInteger. hash 16)
-      (format (str "%0" (* h w) "d"))
-      (map #(Integer/parseInt (str %)))
-      (map num->cell)
-      (partition h)))
+  (defn unhash-board [h w hash]
+    "Turns a hashed board back into a seq-of-seqs."
+      (->> (BigInteger. hash base)
+        (format (str "%0" (* h w) "d"))
+        (map #(Integer/parseInt (str %)))
+        (map num->cell)
+        (partition h))))
