@@ -1,45 +1,52 @@
 # RESTsweeper
 
-RESTful implementation of the Minesweeper game. Written in Clojure and using
-the excellent Compojure web framework.
+RESTsweeper is a purely functional, RESTful implementation of the Minesweeper
+game. It is written in Clojure using the excellent Compojure web framework.
 
 ## Installation
 
-The only pre-dependencies are the Sun JDK/OpenJDK, Maven and Leiningen. The latter
-will automatically download all other dependencies.
+You have to have the Sun JDK or Open JDK plus Maven pre-installed. If you do
+not have a copy of Leiningen yet, download the
+[lein shell script](http://github.com/technomancy/leiningen/raw/stable/bin/lein)
+and drop it somewhere into your PATH.
 
-* Download the [lein shell script](http://github.com/technomancy/leiningen/raw/stable/bin/lein)
-  and drop it into any directory on your PATH
-* lein self-install
-* cd /path/to/restsweeper
-* lein deps
+Leiningen will deal with all other dependencies automatically. Just run:
+
+    $ lein self-install
+    $ cd /path/to/restsweeper
+    $ lein deps
 
 ## Usage
 
-Run with something like:
+The easiest way to run RESTsweeper is to execute:
 
-    > java -cp src:lib/clojure-1.1.0.jar:lib/clojure-contrib-1.1.0.jar:lib/commons-codec-1.3.jar:lib/commons-fileupload-1.2.1.jar:lib/commons-io-1.4.jar:lib/compojure-0.3.2.jar:lib/jetty-6.1.21.jar:lib/jetty-util-6.1.21.jar:lib/servlet-api-2.5-20081211.jar clojure.main src/restsweeper/run.clj
+    $ java -cp "src:lib/*" clojure.main src/restsweeper/run.clj
 
-It's also possible to start a REPL with 'lein repl', then either
-(require 'restsweeper.run) or play with the Clojure code instead :-)
+Now point your browser to http://localhost:8080/ and enjoy.
 
-If after an extended amout of fiddling you can't seem to get this to work,
-just send me a message and I'll see what I can do.
+It's also possible to start a REPL with `lein repl`, then either
+`(require 'restsweeper.run)` or play with the Clojure code instead :-)
+
+Leiningen has much improved the Java classpath and dependency handling already.
+However, if after an extended amout of fiddling you still can't seem to get
+this software to work, just send me a message and I'll try to help you.
 
 ## Hacking
 
 Sure, please do! I wrote this software for the learning experience, so if you
-learn something by reading, using or even improving this code, I'd feel honored.
+learn something by reading, using or even improving this code, it has served
+its purpose.
 
-Some things that still need attention:
+Some enhancements that could provide a challenge:
 
 * Flagging is 99% implemented in the backend, but there is currently no
   user-visible way to actually put flags on cells, the reason being that
-  left-clicking on links is currently the only mechanism to advance to the
-  next game step. I'd very much prefer to implement this user interaction
-  without resorting to JavaScript, so: If you have any idea how to handle
-  this, please drop me a message.
-* The unit tests don't compile anymore.
+  left-clicking on links is currently the only mechanism to advance to the next
+  game step. I'd very much prefer to implement this user interaction without
+  resorting to JavaScript, so: If you have any idea how to handle this, please
+  drop me a message. Or better yet: Fork this repo and implement it yourself!
+* The unit tests don't compile anymore because I stopped updating halfway
+  through development.
 
 ## License
 
