@@ -1,5 +1,6 @@
 (ns restsweeper.utils-test
-  (:use [clojure.test]))
+  (:use [restsweeper.utils]
+        [clojure.test]))
 
 (deftest nand-test
   (are [a b result] (= (nand a b) result)
