@@ -18,14 +18,19 @@ Leiningen will deal with all other dependencies automatically. Just run:
 
 ## Usage
 
-The easiest way to run RESTsweeper is to execute:
+The easiest way to start RESTsweeper is to run it as a Java class:
 
-    $ java -cp "src:lib/*" clojure.main src/restsweeper/run.clj
+    $ lein compile
+    $ java -cp "classes:lib/*" restsweeper.Main
+
+If you want to experiment with the source, change things and then immediately see the effect:
+
+    $ lein repl
+    user=> (run)
+    ; Then, every time after you've changed the source:
+    user=> (require '[restsweeper.run :reload-all true])
 
 Now point your browser to http://localhost:8080/ and enjoy.
-
-It's also possible to start a REPL with `lein repl`, then either
-`(require 'restsweeper.run)` or play with the Clojure code instead :-)
 
 Leiningen has much improved the Java classpath and dependency handling already.
 However, if after an extended amout of fiddling you still can't seem to get
