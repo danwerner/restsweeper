@@ -6,17 +6,10 @@
 
 ;; Predicates
 
-(defn mine? [cell]
-  (or (:mine cell) false))
-
-(defn numbered? [cell]
-  (or (:number cell) false))
-
-(defn flag? [cell]
-  (or (:flag cell) false))
-
-(defn uncovered? [cell]
-  (or (:uncovered cell) false))
+(def mine? (comp boolean :mine))
+(def numbered? (comp boolean :number))
+(def flag? (comp boolean :flag))
+(def uncovered? (comp boolean :uncovered))
 
 (defn cascade-uncover? [cell]
   "After uncovering this cell, should adjecent cells be uncovered?"
@@ -36,7 +29,7 @@
    do contain mines?"
   (let [fboard (flatten board)]
     (every? #(or (and (uncovered? %) (not (mine? %)))
-                 (and (mine? %) (not (uncovered? %))))
+                 (and (not (uncovered? %)) (mine? %)))
             fboard)))
 
 (defn max-mines [h w]
