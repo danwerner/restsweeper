@@ -124,13 +124,14 @@
   ; (filter (complement mine?) (flatten board))
 
 (defn place-mines
-  "Places m mines in randomly chosen locations on a board of size h×w."
+  "Places m mines in randomly chosen locations on a board of size h×w.
+   Returns the new board, or nil if there is not enough room for m mines."
   [h w m board]
-  {:pre [(< m (max-mines h w))]}
-  (if (> m 0)
-    (let [[y x] (rand-elt (empty-cells board))]
-      (recur h w (dec m) (assoc-in board [y x :mine] true)))
-    board))
+  (if (< m (max-mines h w))
+    (if (> m 0)
+      (let [[y x] (rand-elt (empty-cells board))]
+        (recur h w (dec m) (assoc-in board [y x :mine] true)))
+      board)))
 
 (defn-memo make-empty-board
   "Creates a new, empty board w wide and h high."

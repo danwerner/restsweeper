@@ -44,14 +44,12 @@ its purpose.
 
 Some enhancements that could provide a challenge:
 
-* Flagging is 99% implemented in the backend, but there is currently no
-  user-visible way to actually put flags on cells, the reason being that
-  left-clicking on links is currently the only mechanism to advance to the next
-  game step. I'd very much prefer to implement this user interaction without
-  resorting to JavaScript, so: If you have any idea how to handle this, please
-  drop me a message. Or better yet: Fork this repo and implement it yourself!
-* The unit tests don't compile anymore because I stopped updating halfway
-  through development.
+* Switch from Compojure HTML to Enlive templating.
+* Use Gaka or csslj to construct CSS styles. Or simply move them out to a static file.
+* The reversible hashing algorithm used to compress the game board into URLs is
+  ugly and breaks for larger board sizes. There's probably an easier way to do this.
+* Almost all unit tests are outdated because I stopped updating them halfway
+  through development. Please fix and extend them at your leisure :-)
 
 ## License
 

@@ -1,7 +1,7 @@
 (ns restsweeper.templates
   (:use [restsweeper game hash])
   (:use [clojure.contrib.seq-utils :only [indexed]]
-        [compojure.html])
+        [compojure.html :only [doctype html link-to xhtml-tag]])
   (:require [clojure.contrib.str-utils2 :as str]))
 
 (def *debug* false)
