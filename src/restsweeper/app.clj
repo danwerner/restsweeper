@@ -6,6 +6,7 @@
         [restsweeper.templates :only [main-page board-page]]
         [restsweeper.utils :only [vectorize badrequest]]
         [ring.util.response :only [content-type redirect response]]
+        [ring.middleware.static :only [wrap-static]]
         [net.cgrand.moustache :only [app]]))
 
 (defn parse-boardsize
@@ -45,6 +46,7 @@
 (def rs-app
   (app :get
     (app
+      (wrap-static "resources" #{"/static/"})
       []
         (fn [req] (main-menu))
       ["new" [boardsize parse-boardsize]]

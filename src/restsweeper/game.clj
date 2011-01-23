@@ -18,7 +18,8 @@
 (defn can-interact? [cell]
   "Is the player able to interact with this cell in the current turn,
   e.g. uncover it or flag it?"
-  (not (uncovered? cell)))
+  (not (or (uncovered? cell)
+           (flag? cell))))
 
 (defn game-lost? [board]
   "Has the player hit a mine?"
@@ -59,7 +60,7 @@
 
 (defn uncover
   "Returns the board with cell at [x y] uncovered. If the cell is an empty one,
-   will also cascade the uncover adjecent empty and numbered cells.
+   will also cascade to uncover adjecent empty and numbered cells.
    If uncover-mine? is true, will also uncover cells containing mines."
   ([y x h w uncover-mine? board]
     (let [cell (get-in board [y x])]
@@ -79,7 +80,7 @@
     (uncover y x h w true board)))
 
 (defn flag
-  "Returns the board with the cell at [x y] flagged."
+  "Returns the board with the flag at cell [x y] toggled."
   [y x h w board]
   (let [cell (get-in board [y x])]
     (cond
@@ -88,7 +89,7 @@
       (flag? cell)
         (dissoc-in board [y x :flag])
       :else
-        (assoc-in board [x y :flag] true))))
+        (assoc-in board [y x :flag] true))))
 
 
 ;; Board construction

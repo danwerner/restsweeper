@@ -25,13 +25,24 @@
    ;["Hard"   30 16 99]
    ])
 
-(defn html-base [& body]
-  (html
+(defn html-base
+  {:arglists '([body] [options body])}
+  [& tail]
+  (let [options (if (map? (first tail))
+                  (first tail)
+                  nil)
+        body    (if options
+                  (rest tail)
+                  tail)]
+   (html
     (doctype :xhtml-strict)
     (xhtml-tag "en"
       [:html
         [:head
           [:title "RESTsweeper"]
+          (when (:jquery? options)
+            [:script {:src "https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js",
+                      :type "text/javascript"}])
           [:style "table#board          { border: 3px solid grey; }
                    #board div.uncovered { background-color: white; }
                    #board div.boom      { background-color: red; }
@@ -47,7 +58,20 @@
                             (format "#board div.number-%d  { color: %s; }" n c))
                           number-color))]]
         "\n"
-        [:body nil body]])))
+        [:body nil body]]))))
+
+(defn board-script []
+  "$(document).ready(function() {
+    $('#board td.cell a').noContext().rightClick(function(e) {
+      // Right click will flag the field
+      if (e.which === 3) {
+        window.location.href = $(this).attr('rel');
+        e.preventDefault();
+      }
+      // Otherwise uncover field
+    });
+  });
+  ")
 
 (defn cell-format [cell]
   "Returns a vector [css-class content] to visually represent a cell."
@@ -63,26 +87,39 @@
     :else
       ["" nil]))
 
+(defn action-url [action-fn y x h w board]
+  (->> (action-fn y x h w board)
+    (hash-board)
+    (format "/game/%dx%d/%s" h w)))
+
 (defn board-page [h w board]
   (let [game-lost  (game-lost? board)
         game-won   (game-won? board)
         message    (cond game-lost "You lose :-("
                          game-won  "You win :-)")]
-    (html-base
+    (html-base {:jquery? true}
       [:table#board
         (for [[y row] (indexed board)]
           [:tr
             (for [[x cell] (indexed row)]
               (let [[class content] (cell-format cell)
-                     hash  (hash-board (uncover y x h w board))
-                     url   (format "/game/%dx%d/%s" h w hash)
-                     div   [:div {:class class} content]]
-                [:td
-                  (if (and (can-interact? cell) (not game-lost) (not game-won))
-                    [:a {:href url} div]
+                    div             [:div {:class class} content]]
+                [:td.cell
+                  (if-not (or game-lost game-won (uncovered? cell))
+                    (let [uncover-url     (if-not (flag? cell)
+                                            (action-url uncover y x h w board))
+                          flag-url        (action-url flag y x h w board)]
+                      ; Left click -> href, right click -> rel
+                      [:a {:href uncover-url :rel flag-url}
+                        div])
                     div)]))])
           [:tr [:td#message {:colspan w} (or message "&nbsp;")]]]
+
       [:p (link-to "/" "&laquo; Menu")]
+
+      [:script {:type "text/javascript" :src "/static/jquery.rightClick.js"}]
+      [:script {:type "text/javascript"} (board-script)]
+
       (when *debug*
         [:p "["
           (interpose [:br]
