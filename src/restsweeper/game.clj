@@ -1,7 +1,7 @@
 (ns restsweeper.game
   (:use [restsweeper.utils :only [nand]]
         [clojure.contrib.core :only [dissoc-in]]
-        [clojure.contrib.seq-utils :only [rand-elt indexed flatten]]
+        [clojure.contrib.seq :only [indexed]]
         [clojure.contrib.def :only [defn-memo]]))
 
 ;; Predicates
@@ -118,7 +118,7 @@
                    row))
             (iterate inc 0)
             board)
-    (filter (complement nil?))))
+    (keep identity)))
 
   ; NB: If we didn't need the coordinates, empty-cells could be much simpler:
   ; (filter (complement mine?) (flatten board))
@@ -129,7 +129,7 @@
   [h w m board]
   (if (< m (max-mines h w))
     (if (> m 0)
-      (let [[y x] (rand-elt (empty-cells board))]
+      (let [[y x] (rand-nth (empty-cells board))]
         (recur h w (dec m) (assoc-in board [y x :mine] true)))
       board)))
 

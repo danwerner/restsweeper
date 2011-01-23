@@ -1,6 +1,5 @@
 (ns restsweeper.hash
-  (:use [restsweeper.game :only [uncovered? mine? flag?]])
-  (:use [clojure.contrib.seq-utils :only [flatten]]))
+  (:use [restsweeper.game :only [uncovered? mine? flag?]]))
 
 (def bit-values {uncovered? 1, mine? 2, flag? 4})
 
