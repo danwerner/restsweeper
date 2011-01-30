@@ -45,6 +45,8 @@
                       :type "text/javascript"}])
           [:style "table#board          { border: 3px solid grey; }
                    #board div.uncovered { background-color: white; }
+                   #board div.flag      { }
+                   #board div.bad-flag  { color: red; }
                    #board div.boom      { background-color: red; }
                    #board div           { font-size: 30pt;
                                           height: 1.25em; width: 1.25em;
@@ -76,8 +78,10 @@
 (defn cell-format [cell game-over?]
   "Returns a vector [css-class content] to visually represent a cell."
   (cond
+    (and (flag? cell) (not (mine? cell)) game-over?)
+      ["bad-flag" "⚐"]
     (flag? cell)
-      [nil "⚑"]
+      ["flag" "⚑"]
     (and (mine? cell) (uncovered? cell))
       ["boom" "☢"]
     (and (mine? cell) game-over?)
