@@ -73,13 +73,15 @@
   });
   ")
 
-(defn cell-format [cell]
+(defn cell-format [cell game-over?]
   "Returns a vector [css-class content] to visually represent a cell."
   (cond
     (flag? cell)
       [nil "⚑"]
-    (and (uncovered? cell) (mine? cell))
+    (and (mine? cell) (uncovered? cell))
       ["boom" "☢"]
+    (and (mine? cell) game-over?)
+      [nil "☢"]
     (and (uncovered? cell) (numbered? cell))
       [(str "uncovered number-" (:number cell)) (:number cell)]
     (uncovered? cell)
@@ -95,6 +97,7 @@
 (defn board-page [h w board]
   (let [game-lost  (game-lost? board)
         game-won   (game-won? board)
+        game-over  (or game-lost game-won)
         message    (cond game-lost "You lose :-("
                          game-won  "You win :-)")]
     (html-base {:jquery? true}
@@ -102,10 +105,10 @@
         (for [[y row] (indexed board)]
           [:tr
             (for [[x cell] (indexed row)]
-              (let [[class content] (cell-format cell)
+              (let [[class content] (cell-format cell game-over)
                     div             [:div {:class class} content]]
                 [:td.cell
-                  (if-not (or game-lost game-won (uncovered? cell))
+                  (if-not (or game-over (uncovered? cell))
                     (let [uncover-url     (if-not (flag? cell)
                                             (action-url uncover y x h w board))
                           flag-url        (action-url flag y x h w board)]
