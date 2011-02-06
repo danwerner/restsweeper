@@ -1,20 +1,11 @@
 (ns restsweeper.templates
   (:use [restsweeper game hash])
   (:use [clojure.contrib.seq :only [indexed]]
-        [compojure.html :only [doctype html link-to xhtml-tag]])
+        [compojure.html :only [doctype html include-css include-js link-to
+                               xhtml-tag]])
   (:require [clojure.contrib.str-utils2 :as str]))
 
 (def *debug* false)
-
-(def number-color
-  {1 "blue"
-   2 "green"
-   3 "red"
-   4 "darkblue"
-   5 "darkred"
-   6 "cyan"
-   7 "magenta"
-   8 "black"})
 
 (def difficulty
   ;           w  h  m
@@ -26,54 +17,16 @@
    ])
 
 (defn html-base
-  {:arglists '([body] [options body])}
-  [& tail]
-  (let [options (if (map? (first tail))
-                  (first tail)
-                  nil)
-        body    (if options
-                  (rest tail)
-                  tail)]
-   (html
+  [headers & body]
+  (html
     (doctype :xhtml-strict)
     (xhtml-tag "en"
       [:html
         [:head
           [:title "RESTsweeper"]
-          (when (:jquery? options)
-            [:script {:src "https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js",
-                      :type "text/javascript"}])
-          [:style "table#board          { border: 3px solid grey; }
-                   #board div.uncovered { background-color: white; }
-                   #board div.flag      { }
-                   #board div.bad-flag  { color: red; }
-                   #board div.boom      { background-color: red; }
-                   #board div           { font-size: 30pt;
-                                          height: 1.25em; width: 1.25em;
-                                          text-align: center;
-                                          background-color: grey; }
-                   #board a             { color: black; text-decoration: none; }
-                   #board #message      { font-size: 15pt; font-weight: bold;
-                                          text-align: center; }\n"
-                  (str/join "\n"
-                     (map (fn [[n c]]
-                            (format "#board div.number-%d  { color: %s; }" n c))
-                          number-color))]]
+           (apply concat headers)]
         "\n"
-        [:body nil body]]))))
-
-(defn board-script []
-  "$(document).ready(function() {
-    $('#board td.cell a').noContext().rightClick(function(e) {
-      // Right click will flag the field
-      if (e.which === 3) {
-        window.location.href = $(this).attr('rel');
-        e.preventDefault();
-      }
-      // Otherwise uncover field
-    });
-  });
-  ")
+        [:body nil body]])))
 
 (defn cell-format [cell game-over?]
   "Returns a vector [css-class content] to visually represent a cell."
@@ -104,7 +57,11 @@
         game-over  (or game-lost game-won)
         message    (cond game-lost "You lose :-("
                          game-won  "You win :-)")]
-    (html-base {:jquery? true}
+    (html-base
+      [(include-css "/static/css/game.css")
+       (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
+                   "/static/jquery.rightClick.js"
+                   "/static/js/game.js")]
       [:table#board
         (for [[y row] (indexed board)]
           [:tr
@@ -124,9 +81,6 @@
 
       [:p (link-to "/" "&laquo; Menu")]
 
-      [:script {:type "text/javascript" :src "/static/jquery.rightClick.js"}]
-      [:script {:type "text/javascript"} (board-script)]
-
       (when *debug*
         [:p "["
           (interpose [:br]
@@ -137,6 +91,7 @@
 
 (defn main-page []
   (html-base
+    nil
     [:h1 "RESTsweeper"]
     [:h2 "New game"]
     [:ul
