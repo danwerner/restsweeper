@@ -64,16 +64,15 @@
               [:div]
                 (do->
                   (add-class divclass)
-                  (content cnt))
-              [:a]
-                (if-not (or gameover? (uncovered? cell))
-                  ; Left click -> href, right click -> rel
-                  (let [uncover-url (if-not (flag? cell)
-                                      (action-url uncover y x h w board))
-                        flag-url    (action-url flag y x h w board)]
-                    (set-attr :href uncover-url
-                              :rel flag-url))
-                  unwrap)))))
+                  (content cnt)
+                  (if-not (or gameover? (uncovered? cell))
+                    ; Left click -> href, right click -> rel
+                    (let [uncover-url (if-not (flag? cell)
+                                        (action-url uncover y x h w board))
+                          flag-url    (action-url flag y x h w board)]
+                      (wrap :a {:href uncover-url
+                                :rel flag-url}))
+                    identity))))))
   [:td#message]
     (do->
       (set-attr :colspan w)
