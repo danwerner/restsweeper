@@ -1,9 +1,11 @@
 (ns restsweeper.templates
-  (:use [restsweeper game hash])
-  (:use [clojure.contrib.seq :only [indexed]]
+  (:use [restsweeper game hash]
+        [clojure.contrib.seq :only [indexed]]
         [compojure.html :only [doctype html include-css include-js link-to
-                               xhtml-tag]])
-  (:require [clojure.contrib.str-utils2 :as str]))
+                               xhtml-tag]]
+        [net.cgrand.enlive-html]
+        [ring.util.response :only [response redirect]])
+  (:require [clojure.string :as str]))
 
 (def *debug* false)
 
@@ -51,7 +53,36 @@
     (hash-board)
     (format "/game/%dx%d/%s" h w)))
 
-(defn board-page [h w board]
+(defsnippet board-page "templates/game.html" [:body :> any-node]
+  [h w board gameover? message]
+  [[:tr first-of-type]]
+    (clone-for [[y row] (indexed board)]
+      [:td.cell]
+        (clone-for [[x cell] (indexed row)]
+          (let [[divclass cnt] (cell-format cell gameover?)]
+            (transformation
+              [:div]
+                (do->
+                  (add-class divclass)
+                  (content cnt))
+              [:a]
+                (if-not (or gameover? (uncovered? cell))
+                  ; Left click -> href, right click -> rel
+                  (let [uncover-url (if-not (flag? cell)
+                                      (action-url uncover y x h w board))
+                        flag-url    (action-url flag y x h w board)]
+                    (set-attr :href uncover-url
+                              :rel flag-url))
+                  unwrap)))))
+  [:td#message]
+    (do->
+      (set-attr :colspan w)
+      (content (or message "")))
+  [:p.debug]
+    (when *debug*
+      (html-content "[" (str/join "<br>" (map (comp str vec) board)) "]")))
+
+(defn board-page* [h w board]
   (let [game-lost  (game-lost? board)
         game-won   (game-won? board)
         game-over  (or game-lost game-won)
@@ -89,7 +120,23 @@
         "]" ])
       )))
 
-(defn main-page []
+(deftemplate page "templates/base.html" [body styles scripts]
+  [[:link (attr= :rel "stylesheet")]]
+    (clone-for [style styles]
+      (set-attr :href style))
+  [:script.import]  (clone-for [script scripts]
+                      (set-attr :src script))
+  [:body]           (content body))
+
+(defsnippet main-page "templates/main.html" [:body :> any-node] []
+  [:ul#newgame :li]
+  (clone-for [[name w h m] difficulty]
+    [:a] (do->
+           (set-attr :href (format "/new/%dx%dx%d" w h m))
+           (content (format "%s - %dx%d with %d mines"
+                            name w h m)))))
+
+(defn main-page* []
   (html-base
     nil
     [:h1 "RESTsweeper"]
@@ -102,3 +149,5 @@
     [:ul
       [:li (link-to "http://en.wikipedia.org/wiki/Minesweeper_(video_game)" "Read Manual")]
       [:li (link-to "http://github.com/danwerner/restsweeper" "Download Source")]]))
+
+

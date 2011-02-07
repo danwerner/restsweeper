@@ -3,7 +3,7 @@
      :author "Daniel Werner <daniel.d.werner at googlemail dot com>"}
   restsweeper.app
   (:use [restsweeper game hash]
-        [restsweeper.templates :only [main-page board-page]]
+        [restsweeper.templates :only [page main-page board-page]]
         [restsweeper.utils :only [vectorize badrequest]]
         [ring.util.response :only [content-type redirect response]]
         [ring.middleware.static :only [wrap-static]]
@@ -18,8 +18,9 @@
   (if-let [[_ h w m] (re-matches #"(\d+)x(\d+)(?:x(\d+))?" boardsize)]
     (vec (map #(and % (Integer. %)) [h w m]))))
 
-(defn render [body]
-  (-> (response body)
+(defn render [body & [styles scripts]]
+  (-> (page body styles scripts)
+    response
     (content-type "text/html; charset=utf-8")))
 
 (defn main-menu
@@ -38,10 +39,18 @@
 (defn step-board
   [[h w _] hash]
   ; Vectorization is needed for random access
-  (let [board (->> hash
-                (unhash-board h w)  (vectorize)
-                (place-numbers h w) (vectorize))]
-    (render (board-page h w board))))
+  (let [board   (->> hash
+                  (unhash-board h w)  (vectorize)
+                  (place-numbers h w) (vectorize))
+        lost?   (game-lost? board)
+        won?    (game-won? board)
+        message (cond lost? "You lose :-("
+                      won?  "You win :-)")]
+    (render (board-page h w board (or lost? won?) message)
+            ["/static/css/game.css"]
+            ["https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
+             "/static/jquery.rightClick.js"
+             "/static/js/game.js"])))
 
 (def rs-app
   (app :get
