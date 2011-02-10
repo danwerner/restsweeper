@@ -90,7 +90,7 @@
     (html-base
       [(include-css "/static/css/game.css")
        (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
-                   "/static/jquery.rightClick.js"
+                   "/static/js/jquery.rightClick.js"
                    "/static/js/game.js")]
       [:table#board
         (for [[y row] (indexed board)]

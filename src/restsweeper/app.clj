@@ -49,7 +49,7 @@
     (render (board-page h w board (or lost? won?) message)
             ["/static/css/game.css"]
             ["https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"
-             "/static/jquery.rightClick.js"
+             "/static/js/jquery.rightClick.js"
              "/static/js/game.js"])))
 
 (def rs-app
