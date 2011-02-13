@@ -7,7 +7,7 @@
   text-align: center;
   background-color: grey;
 }
-#board div a {
+#board a {
   color: black;
   text-decoration: none;
 }

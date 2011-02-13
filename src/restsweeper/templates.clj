@@ -29,7 +29,7 @@
     (and (mine? cell) game-over?)
       [nil "☢"]
     (and (uncovered? cell) (numbered? cell))
-      [(str "uncovered number-" (:number cell)) (:number cell)]
+      [(str "uncovered number-" (:number cell)) (str (:number cell))]
     (uncovered? cell)
       ["uncovered" nil]
     :else
