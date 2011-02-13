@@ -1,5 +1,13 @@
 /* Cells */
 
+table#board {
+  border-collapse: collapse;
+}
+
+#board td.cell {
+  border: 1px solid grey;
+}
+
 #board div {
   font-size: 30pt;
   height: 1.25em;
