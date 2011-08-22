@@ -53,6 +53,6 @@ Some enhancements that could provide a challenge:
 
 ## License
 
-Copyright (C) 2010  Daniel D. Werner
+Copyright (C) 2010-2011  Daniel D. Werner
 
 Distributed under the 2-clause BSD License. See the file COPYING.
