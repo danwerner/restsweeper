@@ -1,7 +1,10 @@
 # RESTsweeper
 
 RESTsweeper is a purely functional, RESTful implementation of the Minesweeper
-game. It is written in Clojure using the excellent Compojure web framework.
+game. It is written in Clojure on top of the excellent
+[Moustache](http://github.com/cgrand/moustache) web micro-framework and the
+equally excellent [Enlive](http://github.com/cgrand/enlive) template
+transformation engine.
 
 ## Installation
 
@@ -44,7 +47,6 @@ its purpose.
 
 Some enhancements that could provide a challenge:
 
-* Switch from Compojure HTML to Enlive templating.
 * Use Gaka or csslj to construct CSS styles. Or simply move them out to a static file.
 * The reversible hashing algorithm used to compress the game board into URLs is
   ugly and breaks for larger board sizes. There's probably an easier way to do this.
